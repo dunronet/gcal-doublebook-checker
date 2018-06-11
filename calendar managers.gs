@@ -54,47 +54,39 @@ function identifyConflictsGeneralized(sendEmail, masterCalendarID, calendarsToCh
     var unsortedEvents = targetCalendar.getEvents(startOfRange, endOfRange);
     var sortedEvents = []; // placeholder for events booked on the master calendar
     
-        
-    // STEP 3: Move all events booked on "master" unit into sortedEvents
-    while(unsortedEvents.length > 0){
-      var currentEvent = unsortedEvents.pop();
-      if (currentEvent.getOriginalCalendarId() == masterCalendarID) { sortedEvents.push(currentEvent); }
-    }
-    
-    
-    // STEP 4: replace full unsorted stack with only the events booked on "master" calendar, reset sorted events
-    unsortedEvents = sortedEvents;
-    sortedEvents = [];    
+    // STEP 3/4: Filter unsorted events to only include events on the master calendar
+    unsortedEvents = unsortedEvents.filter(function(eventObj){return eventObj.getOriginalCalendarId() == this.masterCalendarID; },{masterCalendarID: masterCalendarID});    
     
     // STEP 5: check "master" calendar events that include the user for conflicts with rest of user calendar
     while(unsortedEvents.length > 0){
-      currentEvent = unsortedEvents.pop();
-      
+      var currentEvent = unsortedEvents.pop();   
+
       if (!(currentEvent.isAllDayEvent())){ // don't check all day events on master calendar.
           
         // load all events that overlap the current event
         var unconfirmedConflicts = targetCalendar.getEvents(currentEvent.getStartTime(),currentEvent.getEndTime());
-        var conflicts = []
+        var conflicts = [];
         var conflictCounter = unconfirmedConflicts.length; 
          
             const CONFLICT_FLAG = "conflictsAlreadyFlagged";
-          
-        while(unconfirmedConflicts.length>0){ // we have conflicts, but the user may have all day events
-          var checkingConflict = unconfirmedConflicts.pop();
+        
+        var conflicts = uncomfiredConflicts.filter(function(checkingConflict){  
+
           if(
             (
-            (checkingConflict === currentEvent)||
-            (checkingConflict == currentEvent)||
-            (checkingConflict.getId() === currentEvent.getId())
+            (checkingConflict === this.currentEvent)||
+            (checkingConflict == this.currentEvent)||
+            (checkingConflict.getId() === this.currentEvent.getId())
             )||  // event shows up as its own conflict
-            (checkingConflict.isAllDayEvent()) // all day event... don't even try.
+            (checkingConflict.isAllDayEvent()) // all day event
             ){
-            currentEvent.deleteTag(CONFLICT_FLAG);
+               currentEvent.deleteTag(this.CONFLICT_FLAG);
             
             } // do nothing other than clear conflict flag
           else { 
-            conflicts.push(checkingConflict); } // save conflict if not an all day event
-        } // done reviewing conflicts
+            return true; } // save conflict if not an all day event
+          return false;
+        },{currentEvent: currentEvent, CONFLICT_FLAG: CONFLICT_FLAG}); // done reviewing conflicts
         
         if (currentEvent.getTag(CONFLICT_FLAG) == "true"){} // skip things that have already been flagged
         else if (conflicts.length>0){
