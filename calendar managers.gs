@@ -74,7 +74,7 @@ function identifyConflictsGeneralized(sendEmail, masterCalendarID, calendarsToCh
           
         // load all events that overlap the current event
         var unconfirmedConflicts = targetCalendar.getEvents(currentEvent.getStartTime(),currentEvent.getEndTime());
-        var conflicts = []
+        var conflicts = [];
         var conflictCounter = unconfirmedConflicts.length; 
          
             const CONFLICT_FLAG = "conflictsAlreadyFlagged";
