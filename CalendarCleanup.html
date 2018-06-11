@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+  <?
+  if(problemEventsByCalendar.length>0){
+  ?>
+    <p>Automated check found the following errors on <?=masterCalendarId?>:</p>
+    <? for(var j=0;j<problemEventsByCalendar.length;j++){
+         var currentCalendar = problemEventsByCalendar[j].calendar;
+         var problemEvents = problemEventsByCalendar[j].problemEvents;
+    
+         if(problemEvents.length>0){
+    ?>
+            <h3><?=currentCalendar.getName()?>:</h3>
+            <table>
+    <?
+            for(var i = 0;i<problemEvents.length;i++){ 
+            var currentProblemEvent = problemEvents[i].masterEvent;
+    ?>
+                <tr><td><?=currentProblemEvent.getTitle()?></td><td><span><?=currentProblemEvent.getStartTime()?></span></td><td><span><?=currentProblemEvent.getEndTime()?></span></td></tr>
+    <?
+             }
+         ?></table><?
+        }
+        else { ?><P>No problems!</P><? }    
+    }
+    }
+    ?>
+    <p>Go to Script to change frequency of these emails...</p><? // advanced options?>
+</body>
+</html>
+
+
